@@ -1,0 +1,37 @@
+version: '2'
+services:
+  scheduler:
+    environment:
+    - ASTRO_HOST_DIR=${PWD}
+    volumes:
+      - ${PWD}/xray/:/usr/local/airflow/xray/
+    #user: root      
+  streamlit:
+    image: fletchjeff/streamlitapp:latest
+    networks:
+      - airflow
+    command: streamlit run include/code/streamlit_app.py
+    volumes:
+      - ${PWD}:/xray
+    ports:
+      - 8501:8501
+    working_dir: /xray
+  jupyter:
+    image: tensorflow/tensorflow:latest-gpu-jupyter
+    networks:
+      - airflow
+    volumes:
+      - ${PWD}/include/code/:/xray/
+      - ${PWD}/xray/data/:/data/
+    ports:
+      - 8888:8888
+    command: bash -c "source /etc/bash.bashrc && jupyter notebook --notebook-dir=/xray --ip 0.0.0.0 --no-browser --allow-root --NotebookApp.token=''"
+  tensorboard:
+    image: tensorflow/tensorflow:latest
+    networks:
+      - airflow
+    command: tensorboard --logdir /logs/fit --bind_all
+    volumes:
+      - ${PWD}/xray/training_runs/logs:/logs
+    ports:
+      - 6006:6006
