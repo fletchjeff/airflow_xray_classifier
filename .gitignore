@@ -1,0 +1,11 @@
+.git
+airflow_settings.yaml
+include/config/aws/*
+include/config/kubectl/*
+include/config/ssh/*
+penv
+*/__pycache__
+code/.*
+xray/data/train
+xray/models/*
+xray/training_runs/*

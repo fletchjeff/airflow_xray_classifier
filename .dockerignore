@@ -1,0 +1,8 @@
+.astro
+.git
+.env
+airflow_settings.yaml
+pod-config.yml
+logs/
+xray/
+penv/

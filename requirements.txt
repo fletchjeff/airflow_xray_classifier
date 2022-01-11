@@ -1,0 +1,8 @@
+apache-airflow-providers-amazon
+apache-airflow-providers-ssh
+apache-airflow-providers-sftp
+apache-airflow-providers-docker
+tensorflow
+bentoml
+Pillow
+numpy
