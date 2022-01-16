@@ -8,4 +8,5 @@ penv
 code/.*
 xray/data/train
 xray/models/*
-xray/training_runs/*
+xray/training_runs
+xray/xray_data.tgz

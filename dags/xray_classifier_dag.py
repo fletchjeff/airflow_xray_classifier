@@ -92,7 +92,7 @@ with DAG('xray_classifier_dag',
 
     unpack_data = BashOperator(
         task_id = 'unpack_data',
-        bash_command='tar -xzf /usr/local/airflow/xray/xray_data.tgz -C /usr/local/airflow/xray/',
+        bash_command='tar --skip-old-files -xzf /usr/local/airflow/xray/xray_data.tgz -C /usr/local/airflow/xray/',
         # ssh_hook = SSHHook(remote_host = "192.168.1.100",username='jeff', key_file='/usr/local/airflow/include/config/ssh/jf-key-astro-us-east-1.pem'),
         #ssh_hook = SSHHook(remote_host = "0.0.0.0",username='ubuntu', key_file='/usr/local/airflow/include/config/ssh/jf-key-astro-us-east-1.pem'),
         #remote_host="{{task_instance.xcom_pull(task_ids='get_public_ip', key='public_ip')}}"
@@ -135,7 +135,7 @@ with DAG('xray_classifier_dag',
             '/xray',
             '{{dag_run.logical_date.strftime("%Y%m%d-%H%M%S")}}'
             ],
-        docker_url="tcp://172.17.0.1:2375",#unix://var/run/docker.sock",
+        docker_url=os.environ["DOCKER_HOST"],#tcp://172.17.0.1:2375",#unix://var/run/docker.sock",
         network_mode="bridge",
         mounts=[
             Mount(source="{}".format(os.environ["ASTRO_HOST_DIR"]), target="/xray", type="bind")
@@ -170,7 +170,7 @@ with DAG('xray_classifier_dag',
 
     restart_bentoml_server = BashOperator(
         task_id='restart_bentoml_server',
-        bash_command="export LATEST_RUN=`ls -Art /home/astro/bentoml/repository/TensorflowXray/ | tail -n 1` &&docker kill `(docker ps | awk ' /tensorflow-xray/ { print $1 }')` && docker run -d -p 5000:5000 tensorflow-xray:$LATEST_RUN"
+        bash_command="scripts/restart_bentoml_service.sh"
     )
 
     fetch_data >> unpack_data >> xray_model_train >> build_bentoml_image >> create_bentoml_container >> restart_bentoml_server
