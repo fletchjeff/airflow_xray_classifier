@@ -5,6 +5,7 @@ services:
     - ASTRO_HOST_DIR=${PWD}
     volumes:
       - ${PWD}/xray/:/usr/local/airflow/xray/
+      - /var/run/docker.sock:/var/run/docker.sock
     #user: root      
   streamlit:
     image: fletchjeff/streamlitapp:latest
@@ -35,3 +36,11 @@ services:
       - ${PWD}/xray/training_runs/logs:/logs
     ports:
       - 6006:6006
+  jlh:
+    image: ubuntu:latest
+    networks:
+      - airflow
+    command: chmod a+w /var/run/docker.sock && chmod /jlh/xray && chmod -R /jlh/xray/data/ && chmod -R /jlh/xray/models/
+    volumes:
+      - ${PWD}/:/jlh/
+      - /var/run/docker.sock:/var/run/docker.sock
