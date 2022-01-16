@@ -5,8 +5,7 @@ services:
     - ASTRO_HOST_DIR=${PWD}
     volumes:
       - ${PWD}/xray/:/usr/local/airflow/xray/
-      - /var/run/docker.sock:/var/run/docker.sock
-    #user: root      
+      - /var/run/docker.sock:/var/run/docker.sock   
   streamlit:
     image: fletchjeff/streamlitapp:latest
     networks:
