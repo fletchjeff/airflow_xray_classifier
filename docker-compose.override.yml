@@ -5,7 +5,9 @@ services:
     - ASTRO_HOST_DIR=${PWD}
     volumes:
       - ${PWD}/xray/:/usr/local/airflow/xray/
-      - /var/run/docker.sock:/var/run/docker.sock   
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker
+      #- /usr/local/bin/docker:/usr/local/bin/docker
   streamlit:
     image: fletchjeff/streamlitapp:latest
     networks:
@@ -39,7 +41,7 @@ services:
     image: ubuntu:latest
     networks:
       - airflow
-    command: chmod a+w /var/run/docker.sock && chmod /jlh/xray && chmod -R /jlh/xray/data/ && chmod -R /jlh/xray/models/
+    command: bash -c "chmod a+rw /var/run/docker.sock && chmod a+rw /jlh/xray && chmod -R a+rw /jlh/xray/data/ && mkdir -p /jlh/xray/models && chmod -R a+rw /jlh/xray/models/"
     volumes:
       - ${PWD}/:/jlh/
       - /var/run/docker.sock:/var/run/docker.sock
