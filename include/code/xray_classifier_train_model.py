@@ -12,7 +12,7 @@ print(tf.test.gpu_device_name())
 # Read and create datasets
 data_path_args = sys.argv[1]
 run_date = sys.argv[2]
-data_dir = pathlib.Path("{}/xray/data/train/".format(data_path_args))
+data_dir = pathlib.Path("{}/train/".format(data_path_args))
 batch_size = 32
 img_height = 224
 img_width = 224
@@ -132,9 +132,9 @@ loss0, accuracy0 = model.evaluate(validation_dataset)
 print("initial loss: {:.2f}".format(loss0))
 print("initial accuracy: {:.2f}".format(accuracy0))
 
-log_dir = "{}/xray/training_runs/logs/fit/{}".format(data_path_args,run_date)
+#log_dir = "{}/xray/training_runs/logs/fit/{}".format(data_path_args,run_date)
 
-tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
+#tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
 
 history = model.fit(train_dataset,
                     epochs=initial_epochs,
@@ -195,7 +195,7 @@ val_loss += history_fine.history['val_loss']
 loss, accuracy = model.evaluate(test_dataset)
 print('Test accuracy :', accuracy)
 
-os.mkdir('{}/xray/models/{}/'.format(data_path_args,run_date))
+os.mkdir('{}/models/{}/'.format(data_path_args,run_date))
 
-model.save("{}/xray/models/{}/xray_classifier_model.h5".format(data_path_args,run_date))
+model.save("{}/models/{}/xray_classifier_model.h5".format(data_path_args,run_date))
 
