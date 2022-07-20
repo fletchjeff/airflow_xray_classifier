@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: streamlit-app
+spec:
+  selector:
+    matchLabels:
+      app: streamlit-pods
+  replicas: 1      
+  template:
+    metadata:
+      labels:
+        app: streamlit-pods
+    spec:
+      containers:
+        - name: streamlit-container
+          image: fletchjeffastro/xray_services:0.0.2
+          ports:
+            - containerPort: 8501
+              protocol: TCP
+          command: [ "/bin/bash", "-c", "--" ]
+          #args: ["streamlit run /data/include/code/streamlit_app.py"]
+          args: [ "while true; do sleep 30; done;" ]
+          volumeMounts:
+          - name: persistent-storage
+            mountPath: /data
+      volumes:
+      - name: persistent-storage
+        persistentVolumeClaim:
+          claimName: efs-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: streamlit-svc
+spec:
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - port: 8501
+    protocol: TCP
+    targetPort: 8501
+  selector:
+    app: streamlit-pods
+  sessionAffinity: None
+  type: LoadBalancer
