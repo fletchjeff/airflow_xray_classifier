@@ -1,0 +1,9 @@
+# FROM tensorflow/tensorflow:latest
+# #RUN apt-get update && apt-get upgrade -y
+# RUN pip3 install streamlit
+
+FROM ubuntu:20.04
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Europe/Amsterdam
+RUN apt-get update && apt-get upgrade -y && apt-get install -y python3.9 python3-pip curl
+RUN python3.9 -m pip install ray[serve] Pillow tensorflow streamlit mlflow lime scikit-image

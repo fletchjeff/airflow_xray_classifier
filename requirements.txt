@@ -1,8 +1,11 @@
+# apache-airflow-providers-amazon
+# apache-airflow-providers-ssh
+# apache-airflow-providers-sftp
+# apache-airflow-providers-docker
+# tensorflow
+# bentoml
+# Pillow
+# numpy
+astronomer-providers[amazon]==1.6.0
+apache-airflow-providers-cncf-kubernetes==4.2.0
 apache-airflow-providers-amazon
-apache-airflow-providers-ssh
-apache-airflow-providers-sftp
-apache-airflow-providers-docker
-tensorflow
-bentoml
-Pillow
-numpy

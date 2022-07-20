@@ -12,15 +12,15 @@ from lime import lime_image
 from skimage.segmentation import mark_boundaries
 
 st.title("Xray Classifier")
-host_ip = "172.17.0.1"
+host_ip = "192.168.1.100"
 
 def random_image():
   # normal_file = glob.glob("/mnt/data/xray/data/test/normal/*.jpeg")
   # bacteria_file = glob.glob("/mnt/data/xray/data/test/bacteria/*.jpeg")
   # virus_file = glob.glob("/mnt/data/xray/data/test/virus/*.jpeg")
-  normal_file = glob.glob("xray/data/test/normal/*.jpeg")
-  bacteria_file = glob.glob("xray/data/test/bacteria/*.jpeg")
-  virus_file = glob.glob("xray/data/test/virus/*.jpeg")  
+  normal_file = glob.glob("data/data/test/normal/*.jpeg")
+  bacteria_file = glob.glob("data/data/test/bacteria/*.jpeg")
+  virus_file = glob.glob("data/data/test/virus/*.jpeg")  
   all_files = normal_file + bacteria_file + virus_file
   return random.choice(all_files)
 
@@ -37,9 +37,9 @@ def predict_image():
     im_data = output.getvalue()
     image_data = base64.b64encode(im_data)
     data = 'data:image/png;base64,' + image_data.decode()
-    data = json.dumps({'request' : {'image':data}})
+    data = json.dumps({'image':data})
     headers = {"content-type": "application/json"}
-    json_response = requests.post(f'http://{host_ip}:5000/predict', data=data, headers=headers)
+    json_response = requests.post(f'http://{host_ip}:8000/predictor', data=data, headers=headers)
     result = json_response.json()
     st.session_state.prediction_value = result["result"][0]
   else:

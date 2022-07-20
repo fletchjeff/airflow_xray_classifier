@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ray-app
+spec:
+  selector:
+    matchLabels:
+      app: ray-pods
+  replicas: 1      
+  template:
+    metadata:
+      labels:
+        app: ray-pods
+    spec:
+      containers:
+        - name: ray-container
+          image: fletchjeffastro/tfray:0.0.2
+          ports:
+            - containerPort: 10001
+              protocol: TCP
+              name: ray-init
+            - containerPort: 8265
+              protocol: TCP
+              name: ray-dashboard
+            - containerPort: 6379
+              protocol: TCP
+              name: ray-remote
+            - containerPort: 8000
+              protocol: TCP
+              name: ray-serve
+          command: [ "/bin/bash", "-c", "--" ]
+          args: ["ulimit -n 65536; ray start --head --node-ip-address=0.0.0.0 --include-dashboard=true --dashboard-host=0.0.0.0 --disable-usage-stats && while true; do sleep 30; done;"]
+          #args: [ "while true; do sleep 30; done;" ]
+          volumeMounts:
+          - name: persistent-storage
+            mountPath: /data
+      volumes:
+      - name: persistent-storage
+        persistentVolumeClaim:
+          claimName: efs-claim
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: ray-svc
+#   namespace: default
+# spec:
+#   allocateLoadBalancerNodePorts: true
+#   externalTrafficPolicy: Cluster
+#   internalTrafficPolicy: Cluster
+#   ipFamilies:
+#   - IPv4
+#   ipFamilyPolicy: SingleStack
+#   ports:
+#   - name: port-1
+#     port: 10001
+#     protocol: TCP
+#     targetPort: 10001
+#   - name: port-2
+#     port: 8265
+#     protocol: TCP
+#     targetPort: 8265
+#   - name: port-3
+#     port: 6379
+#     protocol: TCP
+#     targetPort: 6379
+#   - name: port-4
+#     port: 8000
+#     protocol: TCP
+#     targetPort: 8000
+#   selector:
+#     app: ray-pods
+#   sessionAffinity: None
+#   type: LoadBalancer
+         

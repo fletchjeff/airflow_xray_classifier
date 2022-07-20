@@ -5,6 +5,7 @@ import tensorflow as tf
 from tensorflow.keras.preprocessing import image_dataset_from_directory
 #import datetime
 import os
+import mlflow
 
 # Show GPU
 print(tf.test.gpu_device_name())
@@ -12,7 +13,7 @@ print(tf.test.gpu_device_name())
 # Read and create datasets
 data_path_args = sys.argv[1]
 run_date = sys.argv[2]
-data_dir = pathlib.Path("{}/train/".format(data_path_args))
+data_dir = pathlib.Path("{}/data/train/".format(data_path_args))
 batch_size = 32
 img_height = 224
 img_width = 224
@@ -136,10 +137,13 @@ print("initial accuracy: {:.2f}".format(accuracy0))
 
 #tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
 
+mlflow.set_tracking_uri("http://a8a7d3412ef1349b38919a29cce0d563-995607172.eu-central-1.elb.amazonaws.com:5000")
+mlflow.keras.autolog(registered_model_name=f"xray_model_train_{run_date}")
+
 history = model.fit(train_dataset,
                     epochs=initial_epochs,
-                    validation_data=validation_dataset,
-                    callbacks=[tensorboard_callback])
+                    validation_data=validation_dataset)
+                    #callbacks=[tensorboard_callback])
 
 acc = history.history['accuracy']
 val_acc = history.history['val_accuracy']
@@ -183,8 +187,8 @@ total_epochs =  initial_epochs + fine_tune_epochs
 history_fine = model.fit(train_dataset,
                          epochs=total_epochs,
                          initial_epoch=history.epoch[-1],
-                         validation_data=validation_dataset,
-                         callbacks=[tensorboard_callback])
+                         validation_data=validation_dataset)
+                         #callbacks=[tensorboard_callback])
 
 acc += history_fine.history['accuracy']
 val_acc += history_fine.history['val_accuracy']
@@ -198,4 +202,3 @@ print('Test accuracy :', accuracy)
 os.mkdir('{}/models/{}/'.format(data_path_args,run_date))
 
 model.save("{}/models/{}/xray_classifier_model.h5".format(data_path_args,run_date))
-
