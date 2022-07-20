@@ -28,3 +28,23 @@ spec:
       - name: persistent-storage
         persistentVolumeClaim:
           claimName: efs-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlflow-svc
+spec:
+  allocateLoadBalancerNodePorts: true
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - port: 5000
+    protocol: TCP
+    targetPort: 5000
+  selector:
+    app: mlflow-pods
+  sessionAffinity: None
+  type: LoadBalancer

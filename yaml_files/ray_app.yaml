@@ -38,38 +38,37 @@ spec:
       - name: persistent-storage
         persistentVolumeClaim:
           claimName: efs-claim
-# ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: ray-svc
-#   namespace: default
-# spec:
-#   allocateLoadBalancerNodePorts: true
-#   externalTrafficPolicy: Cluster
-#   internalTrafficPolicy: Cluster
-#   ipFamilies:
-#   - IPv4
-#   ipFamilyPolicy: SingleStack
-#   ports:
-#   - name: port-1
-#     port: 10001
-#     protocol: TCP
-#     targetPort: 10001
-#   - name: port-2
-#     port: 8265
-#     protocol: TCP
-#     targetPort: 8265
-#   - name: port-3
-#     port: 6379
-#     protocol: TCP
-#     targetPort: 6379
-#   - name: port-4
-#     port: 8000
-#     protocol: TCP
-#     targetPort: 8000
-#   selector:
-#     app: ray-pods
-#   sessionAffinity: None
-#   type: LoadBalancer
-         
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ray-svc
+  namespace: default
+spec:
+  allocateLoadBalancerNodePorts: true
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - name: port-1
+    port: 10001
+    protocol: TCP
+    targetPort: 10001
+  - name: port-2
+    port: 8265
+    protocol: TCP
+    targetPort: 8265
+  - name: port-3
+    port: 6379
+    protocol: TCP
+    targetPort: 6379
+  - name: port-4
+    port: 8000
+    protocol: TCP
+    targetPort: 8000
+  selector:
+    app: ray-pods
+  sessionAffinity: None
+  type: LoadBalancer
