@@ -39,7 +39,7 @@ def predict_image():
     im_data = output.getvalue()
     image_data = base64.b64encode(im_data)
     data = 'data:image/png;base64,' + image_data.decode()
-    data = json.dumps({'image':data})
+    data = json.dumps({'image':data,'current_run':CURRENT_RUN})
     headers = {"content-type": "application/json"}
     json_response = requests.post(f'http://{RAY_SERVER}:8000/predictor', data=data, headers=headers)
     result = json_response.json()
