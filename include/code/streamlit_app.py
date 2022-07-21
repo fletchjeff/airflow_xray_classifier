@@ -16,8 +16,8 @@ from skimage.segmentation import mark_boundaries
 
 st.title("MLOps with Aiflow: Xray Classifier")
 # Do not delete these lines, they're need udpated by Airflow
-RAY_SERVER='aec1a277e48474b80ad9a713faf74991-411668911.eu-central-1.elb.amazonaws.com'
-STORAGE_PATH='/home/jeff/tmp/airflow_xray_classifier/efs'
+RAY_SERVER=''
+STORAGE_PATH=''
 CURRENT_RUN='20220720-202430'
 
 def random_image():
