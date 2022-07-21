@@ -7,7 +7,7 @@ from kubernetes.client import models as k8s
 
 volume_mount = k8s.V1VolumeMount(
     name='data-storage', 
-    mount_path='/data', 
+    mount_path='/efs', 
     sub_path=None, 
     read_only=False
 )
@@ -54,21 +54,17 @@ def xray_classifier_dag():
         task_id=f"fetch_data_and_code",
         name="fetch_data_and_code_pod",
         image="fletchjeffastro/xray_services:0.0.3",
-        cmds=[ "/bin/bash", "-c", "--" , "cd /data && curl -C - -O 'https://jfletcher-datasets.s3.eu-central-1.amazonaws.com/xray_data_2_class.tgz' && tar -xzf xray_data_2_class.tgz --skip-old-files && curl -O https://raw.githubusercontent.com/fletchjeff/airflow_xray_classifier/main/include/code/xray_classifier_train_model.py"],
+        cmds=[ "/bin/bash", "-c", "--" , "cd /efs && curl -C - -O 'https://jfletcher-datasets.s3.eu-central-1.amazonaws.com/xray_data_2_class.tgz' && tar -xzf xray_data_2_class.tgz --skip-old-files && curl -O https://raw.githubusercontent.com/fletchjeff/airflow_xray_classifier/main/include/code/model_training.py"],
         **kpo_defaults
     )
 
     train_xray_model_on_gpu = KubernetesPodOperator(
         image="tensorflow/tensorflow:latest-gpu",
         name="airflow-xray-pod",
-        cmds=[
-            "python",
-            "/data/xray_classifier_train_model.py",
-            "/data/data",
-            "{{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}"
-            ],
+        cmds=["/bin/bash", "-c", "--", 
+            "pip install mlflow && python /efs/model_training.py /efs/data {{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}"],
         task_id="train_xray_model_on_gpu",
-        startup_timeout_seconds=300,
+        startup_timeout_seconds=600,
         container_resources = container_resources,
         **kpo_defaults
     )

@@ -33,7 +33,7 @@ spec:
           #args: [ "while true; do sleep 30; done;" ]
           volumeMounts:
           - name: persistent-storage
-            mountPath: /data
+            mountPath: /efs
       volumes:
       - name: persistent-storage
         persistentVolumeClaim:

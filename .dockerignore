@@ -4,8 +4,7 @@
 airflow_settings.yaml
 pod-config.yml
 logs/
-xray/
-data/
+efs/
 penv39/
 yaml_files/
 _archive/
