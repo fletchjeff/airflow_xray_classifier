@@ -16,9 +16,9 @@ from skimage.segmentation import mark_boundaries
 
 st.title("MLOps with Aiflow: Xray Classifier")
 # Do not delete these lines, they're need udpated by Airflow
-RAY_SERVER=''
-STORAGE_PATH=''
-CURRENT_RUN=''
+RAY_SERVER='aec1a277e48474b80ad9a713faf74991-411668911.eu-central-1.elb.amazonaws.com'
+STORAGE_PATH='/home/jeff/tmp/airflow_xray_classifier/efs'
+CURRENT_RUN='20220720-202430'
 
 def random_image():
   normal_file = glob.glob(f"{STORAGE_PATH}/data/test/normal/*.jpeg")
@@ -43,7 +43,7 @@ def predict_image():
     headers = {"content-type": "application/json"}
     json_response = requests.post(f'http://{RAY_SERVER}:8000/predictor', data=data, headers=headers)
     result = json_response.json()
-    st.session_state.prediction_value = result["result"][0]
+    st.session_state.prediction_value = result["result"]
   else:
     st.session_state.prediction_value = "Can't predict an explained image"
 
