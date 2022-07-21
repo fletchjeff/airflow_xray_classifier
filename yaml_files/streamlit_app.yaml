@@ -19,11 +19,11 @@ spec:
             - containerPort: 8501
               protocol: TCP
           command: [ "/bin/bash", "-c", "--" ]
-          #args: ["streamlit run /data/include/code/streamlit_app.py"]
-          args: [ "while true; do sleep 30; done;" ]
+          args: ["streamlit run /efs/streamlit_app.py"]
+          #args: [ "while true; do sleep 30; done;" ]
           volumeMounts:
           - name: persistent-storage
-            mountPath: /data
+            mountPath: /efs
       volumes:
       - name: persistent-storage
         persistentVolumeClaim:

@@ -19,11 +19,11 @@ spec:
             - containerPort: 5000
               protocol: TCP
           command: [ "/bin/bash", "-c", "--" ]
-          args: [ "mlflow server --host 0.0.0.0 --backend-store-uri sqlite:////data/mlflow_backend.db --default-artifact-root /data/mlflow_data/"]
+          args: [ "mlflow server --host 0.0.0.0 --backend-store-uri sqlite:////efs/mlflow_backend.db --default-artifact-root /efs/mlflow_data/"]
           #args: [ "while true; do sleep 30; done;" ]
           volumeMounts:
           - name: persistent-storage
-            mountPath: /data
+            mountPath: /efs
       volumes:
       - name: persistent-storage
         persistentVolumeClaim:
