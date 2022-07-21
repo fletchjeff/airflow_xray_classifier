@@ -69,7 +69,7 @@ def xray_classifier_dag():
         image="fletchjeffastro/tfmlflow:0.0.3",
         name="airflow-xray-pod",
         cmds=["/bin/bash", "-c", "--", 
-            "python {}/model_training.py {}/data {{{{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}}}".format(STORAGE_PATH,STORAGE_PATH)],
+            "python {}/model_training.py {} {{{{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}}}".format(STORAGE_PATH,STORAGE_PATH)],
         task_id="train_xray_model_on_gpu",
         startup_timeout_seconds=600,
         container_resources = container_resources,
