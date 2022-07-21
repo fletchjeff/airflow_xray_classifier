@@ -31,14 +31,14 @@ container_resources = k8s.V1ResourceRequirements(
 )
 
 kpo_defaults = {
-        "cluster_context":'arn:aws:eks:eu-central-1:559345414282:cluster/jf-eks', 
+        "cluster_context":"arn:aws:eks:eu-central-1:559345414282:cluster/jf-eks", 
         "namespace":"default",
-        "labels":{'airflow_kpo_in_cluster': "False"},
+        "labels":{"airflow_kpo_in_cluster": "False"},
         "get_logs":True,
         "is_delete_operator_pod":True,
         "in_cluster":False,
         #"kubernetes_conn_id":"kubernetes",
-        "config_file":'/usr/local/airflow/include/kube_config',
+        "config_file":"/usr/local/airflow/include/kube_config",
         "volume_mounts":[volume_mount],
         "volumes":[volume]
 }

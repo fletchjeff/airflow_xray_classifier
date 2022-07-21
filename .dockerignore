@@ -8,5 +8,3 @@ efs/
 penv39/
 yaml_files/
 _archive/
-Docker.*
-Xray Classifier Code/*
