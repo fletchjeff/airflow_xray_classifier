@@ -6,8 +6,6 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import Kubernete
 from kubernetes.client import models as k8s
 import os
 
-from regex import R
-
 STORAGE_PATH=os.environ["STORAGE_PATH"]
 PVC_NAME=os.environ["PVC_NAME"]
 CLUSTER_CONTEXT=os.environ["CLUSTER_CONTEXT"]
@@ -62,16 +60,16 @@ def xray_classifier_dag():
     fetch_data_and_code = KubernetesPodOperator(
         task_id=f"fetch_data_and_code",
         name="fetch_data_and_code_pod",
-        image="fletchjeffastro/xray_services:0.0.3",
+        image="fletchjeffastro/xray_services:0.0.4",
         cmds=[ "/bin/bash", "-c", "--" , f"cd {STORAGE_PATH} && curl -C - -O 'https://jfletcher-datasets.s3.eu-central-1.amazonaws.com/xray_data_2_class.tgz' && tar -xzf xray_data_2_class.tgz --skip-old-files && curl -O https://raw.githubusercontent.com/fletchjeff/airflow_xray_classifier/main/include/code/model_training.py"],
         **kpo_defaults
     )
 
     train_xray_model_on_gpu = KubernetesPodOperator(
-        image="tensorflow/tensorflow:latest-gpu",
+        image="fletchjeffastro/tfmlflow:0.0.3",
         name="airflow-xray-pod",
         cmds=["/bin/bash", "-c", "--", 
-            "pip install mlflow && python {}/model_training.py {}/data {{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}".format(STORAGE_PATH,STORAGE_PATH)],
+            "python {}/model_training.py {}/data {{{{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}}}".format(STORAGE_PATH,STORAGE_PATH)],
         task_id="train_xray_model_on_gpu",
         startup_timeout_seconds=600,
         container_resources = container_resources,
@@ -94,7 +92,7 @@ def xray_classifier_dag():
             import numpy as np
             import base64
             image_data = await request.json()
-            model = tf.keras.models.load_model("{}/models/{{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}/xray_classifier_model.h5".format(STORAGE_PATH))
+            model = tf.keras.models.load_model("{}/models/{{{{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}}}/xray_classifier_model.h5".format(STORAGE_PATH))
             im = Image.open(BytesIO(base64.b64decode(image_data['image'][22:])))
             im = im.resize((224,224),Image.ANTIALIAS)
             im = im.convert("RGB")
@@ -112,12 +110,6 @@ def xray_classifier_dag():
  
     ray_updated = update_ray()
 
-    # streamlit_vars = [
-    #     k8s.V1EnvVar(name='RAY_SERVER', value=RAY_SERVER), 
-    #     k8s.V1EnvVar(name='STORAGE_PATH', value=STORAGE_PATH),
-    #     k8s.V1EnvVar(name='STORAGE_PATH', value=STORAGE_PATH),
-    # ]
-
     fetch_streamlit_code = KubernetesPodOperator(
         task_id=f"fetch_streamlit_code",
         name="fetch_streamlit_code_pod",
@@ -127,11 +119,10 @@ def xray_classifier_dag():
         curl -O https://github.com/fletchjeff/airflow_xray_classifier/blob/main/include/code/streamlit_app.py && \
         sed s/RAY_SERVER=''/RAY_SERVER='{}' streamlit_app.py && \
         sed s/STORAGE_PATH=''/STORAGE_PATH='{}' streamlit_app.py && \
-        sed s/CURRENT_RUN=''/CURRENT_RUN='{{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}' streamlit_app.py 
+        sed s/CURRENT_RUN=''/CURRENT_RUN='{{{{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}}}' streamlit_app.py 
         """.format(STORAGE_PATH,RAY_SERVER,STORAGE_PATH)],
-        # env_vars=streamlit_vars,
         **kpo_defaults
-    )    
+    )
 
     my_dummy_task = DummyOperator(task_id="thankless_task")
 
