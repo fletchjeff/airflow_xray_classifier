@@ -38,7 +38,7 @@ kpo_defaults = {
         "is_delete_operator_pod":True,
         "in_cluster":False,
         #"kubernetes_conn_id":"kubernetes",
-        "config_file":"/usr/local/airflow/include/kube_config",
+        "config_file":"/home/astro/kube_config",#"/usr/local/airflow/include/kube_config",
         "volume_mounts":[volume_mount],
         "volumes":[volume]
 }
