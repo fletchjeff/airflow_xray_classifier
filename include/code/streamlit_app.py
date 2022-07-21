@@ -8,20 +8,21 @@ import base64
 from io import BytesIO
 import json
 import requests
+import os
 from lime import lime_image
 from skimage.segmentation import mark_boundaries
 
-st.title("Xray Classifier")
-host_ip = "192.168.1.100"
+#from dags.xray_dag import RAY_SERVER, STORAGE_PATH
+
+st.title("MLOps with Aiflow: Xray Classifier")
+RAY_SERVER=''
+STORAGE_PATH=''
+CURRENT_RUN=''
 
 def random_image():
-  # normal_file = glob.glob("/mnt/data/xray/data/test/normal/*.jpeg")
-  # bacteria_file = glob.glob("/mnt/data/xray/data/test/bacteria/*.jpeg")
-  # virus_file = glob.glob("/mnt/data/xray/data/test/virus/*.jpeg")
-  normal_file = glob.glob("data/data/test/normal/*.jpeg")
-  bacteria_file = glob.glob("data/data/test/bacteria/*.jpeg")
-  virus_file = glob.glob("data/data/test/virus/*.jpeg")  
-  all_files = normal_file + bacteria_file + virus_file
+  normal_file = glob.glob(f"{STORAGE_PATH}/data/test/normal/*.jpeg")
+  pneumonia_file = glob.glob(f"{STORAGE_PATH}/data/test/pneumonia/*.jpeg")
+  all_files = normal_file + pneumonia_file
   return random.choice(all_files)
 
 def get_new_image():
@@ -39,14 +40,14 @@ def predict_image():
     data = 'data:image/png;base64,' + image_data.decode()
     data = json.dumps({'image':data})
     headers = {"content-type": "application/json"}
-    json_response = requests.post(f'http://{host_ip}:8000/predictor', data=data, headers=headers)
+    json_response = requests.post(f'http://{RAY_SERVER}:8000/predictor', data=data, headers=headers)
     result = json_response.json()
     st.session_state.prediction_value = result["result"][0]
   else:
     st.session_state.prediction_value = "Can't predict an explained image"
 
 def explain_image():
-  model = tf.keras.models.load_model('include/models/xray_classifier_model.h5')
+  model = tf.keras.models.load_model(f'{STORAGE_PATH}/models/{CURRENT_RUN}/xray_classifier_model.h5')
   explainer = lime_image.LimeImageExplainer()
   xray_image = Image.open(st.session_state.image)
   original_size = xray_image.size
@@ -90,50 +91,4 @@ col3.button('Explain Image', on_click=explain_image)
 actual = st.write("Actual Value: {}".format(st.session_state.actual_value))
 prediction = st.write("Predict Value: {}".format(st.session_state.prediction_value))
 container = st.container()
-main_image = container.image(st.session_state.image,clamp=True)#.image
-
-
-
-
-
-
-
-
-# def teachable_machine_classification(img, weights_file):
-#     # Load the model
-#     model = tf.keras.models.load_model(weights_file)
-
-#     # Create the array of the right shape to feed into the keras model
-#     data = np.ndarray(shape=(1, 200, 200, 3), dtype=np.float32)
-#     image = img
-#     #image sizing
-#     size = (200, 200)
-#     image = ImageOps.fit(image, size, Image.ANTIALIAS)
-
-#     #turn the image into a numpy array
-#     image_array = np.asarray(image)
-#     # Normalize the image
-#     normalized_image_array = (image_array.astype(np.float32) / 255)
-
-#     # Load the image into the array
-#     data[0] = normalized_image_array
-
-#     # run the inference
-#     prediction_percentage = model.predict(data)
-#     prediction=prediction_percentage.round()
-    
-#     return  prediction,prediction_percentage
-
-
-# uploaded_file = st.file_uploader("Choose an Cat or Dog Image...", type="jpg")
-
-# if uploaded_file is not None:
-#     image = Image.open(uploaded_file)
-#     st.image(image, caption='Uploaded file', use_column_width=True)
-#     st.write("")
-#     st.write("Classifying...")
-#     label,perc = teachable_machine_classification(image, 'catdog.h5')
-#     if label == 1:
-#         st.write("Its a Dog, confidence level:",perc)
-#     else:
-#         st.write("Its a Cat, confidence level:",1-perc)
+main_image = container.image(st.session_state.image,clamp=True)
