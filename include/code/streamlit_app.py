@@ -18,7 +18,7 @@ st.title("MLOps with Aiflow: Xray Classifier")
 # Do not delete these lines, they're need udpated by Airflow
 RAY_SERVER=''
 STORAGE_PATH=''
-CURRENT_RUN='20220720-202430'
+CURRENT_RUN=''
 
 def random_image():
   normal_file = glob.glob(f"{STORAGE_PATH}/data/test/normal/*.jpeg")
