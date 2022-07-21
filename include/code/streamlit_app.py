@@ -20,6 +20,7 @@ RAY_SERVER=''
 STORAGE_PATH=''
 CURRENT_RUN=''
 
+
 def random_image():
   normal_file = glob.glob(f"{STORAGE_PATH}/data/test/normal/*.jpeg")
   pneumonia_file = glob.glob(f"{STORAGE_PATH}/data/test/pneumonia/*.jpeg")
