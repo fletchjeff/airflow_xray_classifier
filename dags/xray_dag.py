@@ -83,6 +83,7 @@ def xray_classifier_dag():
 
         ray.init(f"ray://{RAY_SERVER}:10001")
         serve.start(detached=True,http_options={"host":"0.0.0.0"})
+        current_run = "20220720-121514" #"{{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}"
 
         @serve.deployment
         async def predictor(request):
@@ -92,7 +93,7 @@ def xray_classifier_dag():
             import numpy as np
             import base64
             image_data = await request.json()
-            model = tf.keras.models.load_model("{}/models/{{{{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}}}/xray_classifier_model.h5".format(STORAGE_PATH))
+            model = tf.keras.models.load_model("{}/models/{}/xray_classifier_model.h5".format(STORAGE_PATH,current_run))
             im = Image.open(BytesIO(base64.b64decode(image_data['image'][22:])))
             im = im.resize((224,224),Image.ANTIALIAS)
             im = im.convert("RGB")
@@ -120,6 +121,6 @@ def xray_classifier_dag():
 
     my_dummy_task = DummyOperator(task_id="thankless_task")
 
-    check_for_new_s3_data >> fetch_data_and_code >> train_xray_model_on_gpu >> ray_updated >> fetch_streamlit_code >> my_dummy_task
+    check_for_new_s3_data >> fetch_data_and_code >> train_xray_model_on_gpu >> ray_updated >> fetch_update_streamlit_code >> my_dummy_task
     
 xray_classifier = xray_classifier_dag()
