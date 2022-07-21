@@ -15,6 +15,7 @@ from skimage.segmentation import mark_boundaries
 #from dags.xray_dag import RAY_SERVER, STORAGE_PATH
 
 st.title("MLOps with Aiflow: Xray Classifier")
+# Do not delete these lines, they're need udpated by Airflow
 RAY_SERVER=''
 STORAGE_PATH=''
 CURRENT_RUN=''

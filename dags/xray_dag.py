@@ -60,16 +60,16 @@ def xray_classifier_dag():
     fetch_data_and_code = KubernetesPodOperator(
         task_id=f"fetch_data_and_code",
         name="fetch_data_and_code_pod",
-        image="fletchjeffastro/xray_services:0.0.4",
+        image="fletchjeffastro/xray_services:0.0.3",
         cmds=[ "/bin/bash", "-c", "--" , f"cd {STORAGE_PATH} && curl -C - -O 'https://jfletcher-datasets.s3.eu-central-1.amazonaws.com/xray_data_2_class.tgz' && tar -xzf xray_data_2_class.tgz --skip-old-files && curl -O https://raw.githubusercontent.com/fletchjeff/airflow_xray_classifier/main/include/code/model_training.py"],
         **kpo_defaults
     )
 
     train_xray_model_on_gpu = KubernetesPodOperator(
-        image="fletchjeffastro/tfmlflow:0.0.3",
+        image="fletchjeffastro/tfmlflow:0.0.4",
         name="airflow-xray-pod",
         cmds=["/bin/bash", "-c", "--", 
-            "python {}/model_training.py {} {{{{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}}}".format(STORAGE_PATH,STORAGE_PATH)],
+            "python {}/model_training.py {} {{{{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}}} {}".format(STORAGE_PATH,STORAGE_PATH,MLFLOW_SERVER)],
         task_id="train_xray_model_on_gpu",
         startup_timeout_seconds=600,
         container_resources = container_resources,
@@ -110,17 +110,11 @@ def xray_classifier_dag():
  
     ray_updated = update_ray()
 
-    fetch_streamlit_code = KubernetesPodOperator(
+    fetch_update_streamlit_code = KubernetesPodOperator(
         task_id=f"fetch_streamlit_code",
-        name="fetch_streamlit_code_pod",
+        name="fetch_update_streamlit_code",
         image="fletchjeffastro/xray_services:0.0.3",
-        cmds=[ "/bin/bash", "-c", "--" , 
-        """cd {} && \ 
-        curl -O https://github.com/fletchjeff/airflow_xray_classifier/blob/main/include/code/streamlit_app.py && \
-        sed s/RAY_SERVER=''/RAY_SERVER='{}' streamlit_app.py && \
-        sed s/STORAGE_PATH=''/STORAGE_PATH='{}' streamlit_app.py && \
-        sed s/CURRENT_RUN=''/CURRENT_RUN='{{{{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}}}' streamlit_app.py 
-        """.format(STORAGE_PATH,RAY_SERVER,STORAGE_PATH)],
+        cmds=[ "/bin/bash", "-c", "--" , "cd {} && curl -O https://raw.githubusercontent.com/fletchjeff/airflow_xray_classifier/main/include/code/streamlit_app.py && sed -i \"s/RAY_SERVER=''/RAY_SERVER='{}'/\" streamlit_app.py && sed -i \"s#STORAGE_PATH=''#STORAGE_PATH='{}'#\" streamlit_app.py && sed -i \"s/CURRENT_RUN=''/CURRENT_RUN='{{{{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}}}'\"/ streamlit_app.py".format(STORAGE_PATH,RAY_SERVER,STORAGE_PATH)],
         **kpo_defaults
     )
 
