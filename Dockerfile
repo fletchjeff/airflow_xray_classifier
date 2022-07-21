@@ -1,7 +1,8 @@
 FROM quay.io/astronomer/astro-runtime:5.0.6
 
 COPY --chown=astro:astro include/.aws /home/astro/.aws
-RUN chown astro:astro /usr/local/airflow/include/kube_config && chmod 600 /usr/local/airflow/include/kube_config
+COPY --chown=astro:astro include/kube_config /home/astro/kube_config
+#RUN chown astro:astro /usr/local/airflow/include/kube_config && chmod 600 /usr/local/airflow/include/kube_config
 
 ENV CLUSTER_CONTEXT=arn:aws:eks:eu-central-1:559345414282:cluster/jf-eks \
     STORAGE_PATH=/efs \
