@@ -112,7 +112,7 @@ def xray_classifier_dag():
     ray_updated = update_ray("{{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}")
 
     fetch_update_streamlit_code = KubernetesPodOperator(
-        task_id=f"fetch_streamlit_code",
+        task_id=f"fetch_update_streamlit_code",
         name="fetch_update_streamlit_code",
         image="fletchjeffastro/xray_services:0.0.3",
         cmds=[ "/bin/bash", "-c", "--" , "cd {} && curl -O https://raw.githubusercontent.com/fletchjeff/airflow_xray_classifier/main/include/code/streamlit_app.py && sed -i \"s/RAY_SERVER=''/RAY_SERVER='{}'/\" streamlit_app.py && sed -i \"s#STORAGE_PATH=''#STORAGE_PATH='{}'#\" streamlit_app.py && sed -i \"s/CURRENT_RUN=''/CURRENT_RUN='{{{{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}}}'\"/ streamlit_app.py".format(STORAGE_PATH,RAY_SERVER,STORAGE_PATH)],
