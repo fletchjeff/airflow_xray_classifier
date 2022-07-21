@@ -12,13 +12,12 @@ print(tf.test.gpu_device_name())
 # Read and create datasets
 data_path_args = sys.argv[1]
 run_date = sys.argv[2]
+MLFLOW_SERVER = sys.argv[3]
 data_dir = pathlib.Path("{}/data/train/".format(data_path_args))
 batch_size = 32
 img_height = 224
 img_width = 224
-#img_size = 224
 img_size = (224, 224)
-
 
 train_dataset = tf.keras.preprocessing.image_dataset_from_directory(
   data_dir,
@@ -120,7 +119,7 @@ print("initial loss: {:.2f}".format(loss0))
 print("initial accuracy: {:.2f}".format(accuracy0))
 
 # Start mlflow
-mlflow.set_tracking_uri("http://a8a7d3412ef1349b38919a29cce0d563-995607172.eu-central-1.elb.amazonaws.com:5000")
+mlflow.set_tracking_uri(f"http://{MLFLOW_SERVER}:5000")
 mlflow.keras.autolog(registered_model_name=f"xray_model_train_{run_date}")
 
 history = model.fit(
