@@ -77,13 +77,13 @@ def xray_classifier_dag():
     )
 
     @task()
-    def update_ray():
+    def update_ray(current_run):
         import ray
         from ray import serve
 
         ray.init(f"ray://{RAY_SERVER}:10001")
         serve.start(detached=True,http_options={"host":"0.0.0.0"})
-        current_run = "20220720-121514" #"{{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}"
+        #current_run = "20220720-121514" #"{{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}"
 
         @serve.deployment
         async def predictor(request):
@@ -109,7 +109,7 @@ def xray_classifier_dag():
         predictor.deploy()
         return "Done"
  
-    ray_updated = update_ray()
+    ray_updated = update_ray("{{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}")
 
     fetch_update_streamlit_code = KubernetesPodOperator(
         task_id=f"fetch_streamlit_code",
