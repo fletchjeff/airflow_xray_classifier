@@ -12,7 +12,7 @@ print(tf.test.gpu_device_name())
 # Read and create datasets
 data_path_args = sys.argv[1]
 run_date = sys.argv[2]
-data_dir = pathlib.Path("{}/data/train/".format(data_path_args))
+data_dir = pathlib.Path("{}/train/".format(data_path_args))
 batch_size = 32
 img_height = 224
 img_width = 224
