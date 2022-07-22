@@ -1,5 +1,7 @@
 # EKS Autoscaling GPU Cluster
 
+https://docs.aws.amazon.com/eks/latest/userguide/create-cluster.html
+https://docs.aws.amazon.com/eks/latest/userguide/autoscaling.html
 
 
 ### Step 1: Create EKS cluster
@@ -202,9 +204,10 @@ Don’t forget to delete this deployment or the cluster won’t scale down.
 kubectl delete -f nvidia-smi.yml
 ```
 
-
-
 ### Step 7: Create EFS Persistent Volume
 
 For ongoing  \
 [https://docs.aws.amazon.com/eks/latest/userguide/efs-csi.html](https://docs.aws.amazon.com/eks/latest/userguide/efs-csi.html)
+
+### Step 8: Create the various ML Services
+This project uses Ray, MLFlow and Streamlit services
