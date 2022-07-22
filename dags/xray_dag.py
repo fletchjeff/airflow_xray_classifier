@@ -2,6 +2,7 @@ import pendulum
 from airflow.decorators import dag, task
 from airflow.operators.dummy_operator import DummyOperator
 from astronomer.providers.amazon.aws.sensors.s3 import S3KeySensorAsync
+from airflow.operators.email import EmailOperator
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
 from kubernetes.client import models as k8s
 import os
@@ -58,17 +59,25 @@ def xray_classifier_dag():
         bucket_key="s3://jfletcher-datasets/xray_data_2_class.tgz",task_id="check_for_new_s3_data",aws_conn_id="my_aws_conn"
     )
     
-    fetch_data_and_code = KubernetesPodOperator(
-        task_id=f"fetch_data_and_code",
-        name="fetch_data_and_code_pod",
+    fetch_data = KubernetesPodOperator(
+        task_id=f"fetch_data",
+        name="fetch_data_pod",
         image="fletchjeffastro/xray_services:0.0.3",
-        cmds=[ "/bin/bash", "-c", "--" , f"cd {STORAGE_PATH} && curl -C - -O 'https://jfletcher-datasets.s3.eu-central-1.amazonaws.com/xray_data_2_class.tgz' && tar -xzf xray_data_2_class.tgz --skip-old-files && curl -O https://raw.githubusercontent.com/fletchjeff/airflow_xray_classifier/main/include/code/model_training.py"],
+        cmds=[ "/bin/bash", "-c", "--" , f"cd {STORAGE_PATH} && curl -C - -O 'https://jfletcher-datasets.s3.eu-central-1.amazonaws.com/xray_data_2_class.tgz' && tar -xzf xray_data_2_class.tgz --skip-old-files"],
+        **kpo_defaults
+    )
+
+    fetch_code = KubernetesPodOperator(
+        task_id=f"fetch_code",
+        name="fetch_code_pod",
+        image="fletchjeffastro/xray_services:0.0.3",
+        cmds=[ "/bin/bash", "-c", "--" , f"cd {STORAGE_PATH} && curl -O https://raw.githubusercontent.com/fletchjeff/airflow_xray_classifier/main/include/code/model_training.py"],
         **kpo_defaults
     )
 
     train_xray_model_on_gpu = KubernetesPodOperator(
         image="fletchjeffastro/tfmlflow:0.0.4",
-        name="airflow-xray-pod",
+        name="train_xray_model_on_gpu_pod",
         cmds=["/bin/bash", "-c", "--", 
             "python {}/model_training.py {} {{{{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}}} {}".format(STORAGE_PATH,STORAGE_PATH,MLFLOW_SERVER)],
         task_id="train_xray_model_on_gpu",
@@ -84,7 +93,6 @@ def xray_classifier_dag():
 
         ray.init(f"ray://{RAY_SERVER}:10001")
         serve.start(detached=True,http_options={"host":"0.0.0.0"})
-        #current_run = "20220720-121514" #"{{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}"
 
         @serve.deployment
         async def predictor(request):
@@ -112,16 +120,22 @@ def xray_classifier_dag():
  
     ray_updated = update_ray("{{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}")
 
-    fetch_update_streamlit_code = KubernetesPodOperator(
-        task_id=f"fetch_update_streamlit_code",
-        name="fetch_update_streamlit_code",
+    fetch_updated_streamlit_code = KubernetesPodOperator(
+        task_id=f"fetch_updated_streamlit_code",
+        name="fetch_updated_streamlit_code_pod",
         image="fletchjeffastro/xray_services:0.0.3",
         cmds=[ "/bin/bash", "-c", "--" , "cd {} && curl -O https://raw.githubusercontent.com/fletchjeff/airflow_xray_classifier/main/include/code/streamlit_app.py && sed -i \"s/RAY_SERVER=''/RAY_SERVER='{}'/\" streamlit_app.py && sed -i \"s#STORAGE_PATH=''#STORAGE_PATH='{}'#\" streamlit_app.py && sed -i \"s/CURRENT_RUN=''/CURRENT_RUN='{{{{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}}}'\"/ streamlit_app.py".format(STORAGE_PATH,RAY_SERVER,STORAGE_PATH)],
         **kpo_defaults
     )
 
-    my_dummy_task = DummyOperator(task_id="thankless_task")
+    email_on_completion = EmailOperator(
+       task_id="email_on_completion",
+       to='jeff.fletcher@astronomer.io',
+       subject='Model Training Complete',
+       html_content="Xray Classifier Model training completed for model run {{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}",
+    )
 
-    check_for_new_s3_data >> fetch_data_and_code >> train_xray_model_on_gpu >> ray_updated >> fetch_update_streamlit_code >> my_dummy_task
+
+    check_for_new_s3_data >> [fetch_data, fetch_code] >> train_xray_model_on_gpu >> [ray_updated, fetch_updated_streamlit_code] >> email_on_completion
     
 xray_classifier = xray_classifier_dag()
