@@ -1,5 +1,6 @@
 .git
 airflow_settings.yaml
+airflow.cfg
 include/.aws/
 include/kube_config
 */__pycache__
