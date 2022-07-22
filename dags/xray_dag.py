@@ -38,8 +38,7 @@ kpo_defaults = {
         "get_logs":True,
         "is_delete_operator_pod":True,
         "in_cluster":False,
-        #"kubernetes_conn_id":"kubernetes",
-        "config_file":"/home/astro/kube_config",#"/usr/local/airflow/include/kube_config",
+        "config_file":"/home/astro/kube_config",
         "volume_mounts":[volume_mount],
         "volumes":[volume]
 }
@@ -52,7 +51,7 @@ kpo_defaults = {
 )
 def xray_classifier_dag():
     """
-
+    This DAG will will check if new xray image files exist, and then trigger the Xray Classifier model training process.
     """
 
     check_for_new_s3_data = S3KeySensorAsync(
