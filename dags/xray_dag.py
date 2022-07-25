@@ -32,7 +32,7 @@ container_resources = k8s.V1ResourceRequirements(
 )
 
 kpo_defaults = {
-    "cluster_context": "arn:aws:eks:eu-central-1:559345414282:cluster/jf-eks",
+    "cluster_context": CLUSTER_CONTEXT,
     "namespace": "default",
     "labels": {"airflow_kpo_in_cluster": "False"},
     "get_logs": True,
