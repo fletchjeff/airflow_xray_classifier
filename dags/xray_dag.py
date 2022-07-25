@@ -1,6 +1,5 @@
 import pendulum
 from airflow.decorators import dag, task
-from airflow.operators.dummy_operator import DummyOperator
 from astronomer.providers.amazon.aws.sensors.s3 import S3KeySensorAsync
 from airflow.operators.email import EmailOperator
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
@@ -128,12 +127,11 @@ def xray_classifier_dag():
     )
 
     email_on_completion = EmailOperator(
-       task_id="email_on_completion",
-       to='jeff.fletcher@astronomer.io',
-       subject='Model Training Complete',
-       html_content="Xray Classifier Model training completed for model run {{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}",
+        task_id="email_on_completion",
+        to='jeff.fletcher@astronomer.io',
+        subject='Model Training Complete',
+        html_content="Xray Classifier Model training completed for model run {{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}",
     )
-
 
     check_for_new_s3_data >> [fetch_data, fetch_code] >> train_xray_model_on_gpu >> [ray_updated, fetch_updated_streamlit_code] >> email_on_completion
     

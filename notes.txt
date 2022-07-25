@@ -81,3 +81,13 @@ helm upgrade -i aws-efs-csi-driver aws-efs-csi-driver/aws-efs-csi-driver \
     Expose the service:
     kubectl expose deployment mlflow-app --type=LoadBalancer --name=mlflow-svc
     kubectl expose deployment ray-app --type=LoadBalancer --name=ray-svc
+
+
+
+# ENV AIRFLOW__SMTP__SMTP_HOST=smtp.gmail.com \
+#     AIRFLOW__SMTP__SMTP_STARTTLS=True \
+#     AIRFLOW__SMTP__SMTP_SSL=False \
+#     AIRFLOW__SMTP__SMTP_USER=fletch.jeff@gmail.com \
+#     AIRFLOW__SMTP__SMTP_PORT=587 \
+#     AIRFLOW__SMTP__SMTP_MAIL_FROM=fletch.jeff@gmail.com \
+#     AIRFLOW__EMAIL__EMAIL_BACKEND=airflow.utils.email.send_email_smtp
