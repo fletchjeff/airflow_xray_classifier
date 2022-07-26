@@ -1,6 +1,6 @@
 # ML Ops with Airflow, Tensorflow and MLFlow
 
- This repo walks through the steps necessary to create and operate an image classifier using Apache Airflow. This includes the DAG and required code to run it, steps to build the kubernetes resources and some helpful hints and tips to apply this into your own environment. This repo provides the code for [this webinar](https://www.astronomer.io/events/webinars/using-airflow-with-tensorflow-mlflow).
+ This repo walks through the steps necessary to create and operate an image classifier using Apache Airflow. This includes the DAG and required code to run it, steps to build the kubernetes resources and some helpful hints and tips to apply this into your own environment. This repo provides the code for [this webinar](https://www.astronomer.io/events/webinars/using-airflow-with-tensorflow-mlflow). The webinar goes into more detail about the code, tooling choices, general ML Ops with Airflow stuff and will help with understanding more of this repo.
 
 ![dag](images/xray_dag.png)
 
@@ -38,7 +38,7 @@ Before moving to step 2 you need to have:
 ### Step 2 - Run Local Airflow Deployment
 For this step you will need to have the Astronomer [astro cli](https://docs.astronomer.io/astro/cli/overview) installed along with some form of Docker engine (e.g. Docker Desktop). Clone this project into local folder. From there you need to add your kubernetes authentication details.
 
-#### 2.1 Copy awscli and kubectl Config Details
+#### 2.1 Copy `aws` cli and `kubectl` Config Details
 Copy your aws cli credential files (config + credentials) into the `include/.aws/` directory. These files are usually in `~/.aws/`. You may have several sets of credentials, so you can delete the ones you don't need before copying over.
 ```
 $ tree ~/.aws/
@@ -62,21 +62,35 @@ ENV CLUSTER_CONTEXT=[your cluster context] \
     MLFLOW_SERVER=[hostname / ip for the MLFlow server] \
     PVC_NAME=efs-claim
 ```
+
+Once you've updated the Dockerfile and added your credentials to the project, you can start up the local Airflow UI but running `astro dev start` in the project directory. 
+
 ![architecture](images/architecture.png)
 
 #### 2.3 Create AWS Connection
+For the `S3KeySensorAsync` to connect to AWS and check the S3 bucket, you need to add your AWS connection details to Airflow. This is different to the AWS config file from step 2.1, although it does contain the same info. In the Airflow UI, got to `Admin > Connections` and add a new connection. Fill in your AWS details as follows, make sure to use the same `my_aws_conn` connection ID.
 
+![connections](images/AWS_Secret.png)
 
 #### 2.4 Configure Email
+There are a couple of ways of getting Airflow to send an email, either as an explicit task or as an alert for failed tasks. The Astro documentation recommends a [few approaches](https://docs.astronomer.io/astro/airflow-alerts#configure-airflow-email-alerts). I used my gmail account along with a [Google App Password](https://support.google.com/accounts/answer/185833?hl=en-GB). The easiest way to configure this with the Astro cli is to add an `airflow.cfg` file to the project directory with the following details:
 
-## Tooling Used
-* [Astro CLI](https://docs.astronomer.io/astro/cli/overview)
-    * Used to create 
-* Apache Airflow
-* EKS
-* Tensorflow
-* MLFlow
-* Ray
-* Streamlit
+```Conf
+[smtp]
+smtp_host = smtp.gmail.com
+smtp_starttls = True
+smtp_ssl = False
+smtp_user = [Your Gmail user]@gmail.com
+smtp_password = [You Google App password]
+smtp_port = 587
+smtp_mail_from = fletch.jeff@gmail.com
+smtp_timeout = 30
+smtp_retry_limit = 5
+```
 
+This becomes the default email connection for the local Airflow instance.
+
+#### 2.5 Trigger the DAG
+
+### Step 3 - Push to Production
 

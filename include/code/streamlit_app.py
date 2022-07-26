@@ -8,7 +8,6 @@ import base64
 from io import BytesIO
 import json
 import requests
-import os
 from lime import lime_image
 from skimage.segmentation import mark_boundaries
 
