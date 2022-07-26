@@ -38,7 +38,7 @@ Before moving to step 2 you need to have:
 ### Step 2 - Run Local Airflow Deployment
 For this step you will need to have the Astronomer [astro cli](https://docs.astronomer.io/astro/cli/overview) installed along with some form of Docker engine (e.g. Docker Desktop). Clone this project into local folder. From there you need to add your kubernetes authentication details.
 
-#### Copy awscli and kubectl Config Details
+#### 2.1 Copy awscli and kubectl Config Details
 Copy your aws cli credential files (config + credentials) into the `include/.aws/` directory. These files are usually in `~/.aws/`. You may have several sets of credentials, so you can delete the ones you don't need before copying over.
 ```
 $ tree ~/.aws/
@@ -48,8 +48,11 @@ $ tree ~/.aws/
 0 directories, 2 files
 ```
 
-There two files will be copied into the Docker image used for the local deployment are *not* pushed to the git repo, so the credentials will remain relatively safe.
+You also need to copy the `KUBECONFIG` file for the cluster ino the `include/` directory. The is usually located at `~/.kube/config`. Again you may have multiple cluster contexts in that file, so you can delete the ones you don't need before copying over.
 
+These files will be copied into the Docker image used for the local deployment and are *not* pushed to the git repo, so the credentials will remain relatively safe.
+
+#### 2.2 Update the `Dockerfile`
 Next open the `Dockerfile` file and update the environment variables with the information you created in step 1.
 
 ```Dockerfile
