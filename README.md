@@ -64,6 +64,11 @@ ENV CLUSTER_CONTEXT=[your cluster context] \
 ```
 ![architecture](images/architecture.png)
 
+#### 2.3 Create AWS Connection
+
+
+#### 2.4 Configure Email
+
 ## Tooling Used
 * [Astro CLI](https://docs.astronomer.io/astro/cli/overview)
     * Used to create 
