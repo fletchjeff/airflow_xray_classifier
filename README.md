@@ -91,6 +91,18 @@ smtp_retry_limit = 5
 This becomes the default email connection for the local Airflow instance.
 
 #### 2.5 Trigger the DAG
+If you have completed all the previous steps, you should be good to go. Trigger the DAG in the local Airflow UI and marvel at the operations of these learning machines!
 
 ### Step 3 - Push to Production
+Once you have everything working locally, the next step is to push into production. The assumptions from here are that:
+1. You already have an Astro account, a cluster and a [deployment](https://docs.astronomer.io/astro/create-deployment)
+2. The EKS/k8s cluster from step 1 can be reached from your Astro deployment
 
+#### 3.1 Deploy to Astro cluster
+To deploy the code to your deployment, in the project directory run `astro deploy`. More help on this is available in the astro [documentation](https://docs.astronomer.io/astro/deploy-code).
+
+#### 3.2 Create AWS Connection
+You need to create the same AWS connection you did for the local configuration in [step 2.3](#23-create-aws-connection)
+
+#### 3.3 Configure Email
+For production it is not recommended to use your gmail account, so you should follow one of the Astronomer recommended email alert [implementations](https://docs.astronomer.io/astro/airflow-alerts#configure-airflow-email-alerts).
