@@ -21,8 +21,8 @@ st.text(f"Model = {CURRENT_RUN}")
 
 
 def random_image():
-  normal_file = glob.glob(f"{STORAGE_PATH}/data/test/normal/*.jpeg")
-  pneumonia_file = glob.glob(f"{STORAGE_PATH}/data/test/pneumonia/*.jpeg")
+  normal_file = glob.glob(f"{STORAGE_PATH}/data/test/normal/*.jpeg")[:200]
+  pneumonia_file = glob.glob(f"{STORAGE_PATH}/data/test/pneumonia/*.jpeg")[:200]
   all_files = normal_file + pneumonia_file
   return random.choice(all_files)
 
