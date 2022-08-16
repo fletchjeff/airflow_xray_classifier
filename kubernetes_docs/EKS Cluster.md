@@ -28,7 +28,7 @@ eksctl create nodegroup \
   --region <your_prefered_region> \
   --name <your_nodegroup_name> \
   --node-type g4dn.xlarge \
-  --nodes 1 \
+  --nodes 0 \
   --nodes-min 0 \
   --nodes-max 2 \
   --node-zones <your_prefered_zones>
