@@ -75,6 +75,7 @@ Next step is to create and attach the service account. Run the following command
 ```
 eksctl utils associate-iam-oidc-provider \
 --cluster <your_cluster_name> \
+--region <your_prefered_region> \
 --approve
 ```
 
@@ -96,6 +97,7 @@ Use that policy arn in the following command.
 ```
 eksctl create iamserviceaccount \
 --cluster=<your_cluster_name>   \
+--region <your_prefered_region> \
 --namespace=kube-system   \
 --name=cluster-autoscaler   \
 --attach-policy-arn=<your_policy_arn>   \
@@ -149,7 +151,7 @@ metadata:
 spec:
   containers:
     - name: nvidia-smi
-      image: nvidia/cuda:11.0-base
+      image: nvidia/cuda:11.7.0-base-ubuntu18.04
       command: ["nvidia-smi"]
       resources:
         limits:
