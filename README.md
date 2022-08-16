@@ -26,7 +26,7 @@ The EKS cluster consists for two node groups, one that uses smaller CPU only nod
 
 The required services need to run continuously and be accessible from your local machine to the cluster, on all the ports that are needed.
 
-A more detailed setup guide for the EKS cluster used for this repo is available [here](kubernetes_docs/EKS Cluster.md). 
+A more detailed setup guide for the EKS cluster used for this repo is available [here](kubernetes_docs/EKS%20Cluster.md). 
 
 ![notebook](images/eks.png)
 
