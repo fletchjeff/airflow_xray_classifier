@@ -38,7 +38,7 @@ kpo_defaults = {
     "get_logs": True,
     "is_delete_operator_pod": True,
     "in_cluster": False,
-    "config_file": "/home/astro/kube_config",
+    "config_file": "/home/astro/config",
     "volume_mounts": [volume_mount],
     "volumes": [volume]
 }

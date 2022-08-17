@@ -167,5 +167,5 @@ loss, accuracy = model.evaluate(test_dataset)
 print('Test accuracy :', accuracy)
 
 # Save the model
-os.mkdir('{}/models/{}/'.format(data_path_args,run_date))
+os.mkdirs('{}/models/{}/'.format(data_path_args,run_date))
 model.save("{}/models/{}/xray_classifier_model.h5".format(data_path_args,run_date))

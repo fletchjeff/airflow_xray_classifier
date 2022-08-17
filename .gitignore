@@ -2,7 +2,7 @@
 airflow_settings.yaml
 airflow.cfg
 include/.aws/
-include/kube_config
+include/config
 */__pycache__
 code/.*
 include/code/__pycache__

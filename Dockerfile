@@ -1,10 +1,10 @@
 FROM quay.io/astronomer/astro-runtime:5.0.6
 
 COPY --chown=astro:astro include/.aws /home/astro/.aws
-COPY --chown=astro:astro include/kube_config /home/astro/kube_config
+COPY --chown=astro:astro include/config /home/astro/config
 
-ENV CLUSTER_CONTEXT=arn:aws:eks:eu-central-1:559345414282:cluster/jf-eks \
+ENV CLUSTER_CONTEXT=arn:aws:eks:us-east-2:016012822754:cluster/cosmicenergy-ml-demo \
     STORAGE_PATH=/efs \
-    RAY_SERVER=aec1a277e48474b80ad9a713faf74991-411668911.eu-central-1.elb.amazonaws.com \
-    MLFLOW_SERVER=a98c118fb63bc44ee92b85511d2bcfb2-2060505287.eu-central-1.elb.amazonaws.com \
+    RAY_SERVER=a3ef591d9cc7146c3a01606677c4a758-966325034.us-east-2.elb.amazonaws.com \
+    MLFLOW_SERVER=a480f098df66f4b859ee4acefc299eaa-1252271903.us-east-2.elb.amazonaws.com \
     PVC_NAME=efs-claim
