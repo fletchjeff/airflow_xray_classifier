@@ -19,6 +19,8 @@ img_height = 224
 img_width = 224
 img_size = (224, 224)
 
+os.environ["MLFLOW_EXPERIMENT_NAME"] = f"run_{run_date}"
+
 train_dataset = tf.keras.preprocessing.image_dataset_from_directory(
   data_dir,
   validation_split=0.2,
@@ -121,7 +123,7 @@ print("initial accuracy: {:.2f}".format(accuracy0))
 # Start mlflow
 mlflow.set_tracking_uri(f"http://{MLFLOW_SERVER}:5000")
 mlflow.keras.autolog(registered_model_name=f"xray_model_train_{run_date}")
-mlflow.create_experiment(f"run_{run_date}")
+#mlflow.create_experiment(f"run_{run_date}")
 
 history = model.fit(
   train_dataset,
