@@ -120,8 +120,8 @@ print("initial accuracy: {:.2f}".format(accuracy0))
 
 # Start mlflow
 mlflow.set_tracking_uri(f"http://{MLFLOW_SERVER}:5000")
-mlflow.create_experiment(f"run_{run_date}")
 mlflow.keras.autolog(registered_model_name=f"xray_model_train_{run_date}")
+mlflow.create_experiment(f"run_{run_date}")
 
 history = model.fit(
   train_dataset,
