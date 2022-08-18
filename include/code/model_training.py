@@ -122,8 +122,8 @@ print("initial accuracy: {:.2f}".format(accuracy0))
 mlflow.set_tracking_uri(f"http://{MLFLOW_SERVER}:5000")
 mlflow.keras.autolog(registered_model_name=f"xray_model_train_{run_date}")
 mlflow.create_experiment(f"run_{run_date}")
-
-with mlflow.start_run(experiment_id=f"run_{run_date}") as run:
+mlflow.set_experiment(f"run_{run_date}")
+with mlflow.start_run() as run:
 
   history = model.fit(
     train_dataset,
@@ -155,7 +155,7 @@ model.compile(
 fine_tune_epochs = 15
 total_epochs =  initial_epochs + fine_tune_epochs
 
-with mlflow.start_run(experiment_id=f"run_{run_date}") as run:
+with mlflow.start_run() as run:
   history_fine = model.fit(
     train_dataset,
     epochs=total_epochs,
