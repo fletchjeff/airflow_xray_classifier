@@ -138,7 +138,7 @@ def xray_classifier_dag():
 
     email_on_completion = EmailOperator(
         task_id="email_on_completion",
-        to='jeff.fletcher@astronomer.io',
+        to='fletch.jeff@gmail.com',
         subject='Model Training Complete',
         html_content="Xray Classifier Model training completed for model run {{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}",
     )

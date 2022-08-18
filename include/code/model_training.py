@@ -19,8 +19,6 @@ img_height = 224
 img_width = 224
 img_size = (224, 224)
 
-os.environ["MLFLOW_EXPERIMENT_NAME"] = f"run_{run_date}"
-
 train_dataset = tf.keras.preprocessing.image_dataset_from_directory(
   data_dir,
   validation_split=0.2,
@@ -125,17 +123,19 @@ mlflow.set_tracking_uri(f"http://{MLFLOW_SERVER}:5000")
 mlflow.keras.autolog(registered_model_name=f"xray_model_train_{run_date}")
 #mlflow.create_experiment(f"run_{run_date}")
 
-history = model.fit(
-  train_dataset,
-  epochs=initial_epochs,
-  validation_data=validation_dataset
-)
+with mlflow.start_run(experiment_id=f"run_{run_date}_base") as run:
 
-# Record metrics
-acc = history.history['accuracy']
-val_acc = history.history['val_accuracy']
-loss = history.history['loss']
-val_loss = history.history['val_loss']
+  history = model.fit(
+    train_dataset,
+    epochs=initial_epochs,
+    validation_data=validation_dataset
+  )
+
+  # Record metrics
+  acc = history.history['accuracy']
+  val_acc = history.history['val_accuracy']
+  loss = history.history['loss']
+  val_loss = history.history['val_loss']
 
 ## Fine tuning
 # Un-freeze the top layers of the model
@@ -154,17 +154,19 @@ model.compile(
 # Continue training the model
 fine_tune_epochs = 15
 total_epochs =  initial_epochs + fine_tune_epochs
-history_fine = model.fit(
-  train_dataset,
-  epochs=total_epochs,
-  initial_epoch=history.epoch[-1],
-  validation_data=validation_dataset
-)
 
-acc += history_fine.history['accuracy']
-val_acc += history_fine.history['val_accuracy']
-loss += history_fine.history['loss']
-val_loss += history_fine.history['val_loss']
+with mlflow.start_run(experiment_id=f"run_{run_date}_fine_tune") as run:
+  history_fine = model.fit(
+    train_dataset,
+    epochs=total_epochs,
+    initial_epoch=history.epoch[-1],
+    validation_data=validation_dataset
+  )
+
+  acc += history_fine.history['accuracy']
+  val_acc += history_fine.history['val_accuracy']
+  loss += history_fine.history['loss']
+  val_loss += history_fine.history['val_loss']
 
 loss, accuracy = model.evaluate(test_dataset)
 print('Test accuracy :', accuracy)
