@@ -1,7 +1,11 @@
-FROM quay.io/astronomer/astro-runtime:5.0.6
+FROM quay.io/astronomer/astro-runtime:6.0.3
 
 COPY --chown=astro:astro include/.aws /home/astro/.aws
 COPY --chown=astro:astro include/config /home/astro/config
+
+COPY tmp_af_fix/python_kubernetes_script.jinja2 /usr/local/lib/python3.9/site-packages/airflow/providers/cncf/kubernetes/python_kubernetes_script.jinja2
+
+COPY tmp_af_fix/kubernetes.py /usr/local/lib/python3.9/site-packages/airflow/providers/cncf/kubernetes/decorators/kubernetes.py
 
 ENV CLUSTER_CONTEXT=arn:aws:eks:us-east-2:016012822754:cluster/cosmicenergy-ml-demo \
     STORAGE_PATH=/efs \

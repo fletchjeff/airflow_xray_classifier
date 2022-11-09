@@ -5,7 +5,7 @@ airflow_settings.yaml
 pod-config.yml
 logs/
 efs/
-penv39/
+penv/
 yaml_files/
 _archive/
 .vscode/

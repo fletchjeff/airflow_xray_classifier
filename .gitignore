@@ -6,7 +6,7 @@ include/config
 */__pycache__
 code/.*
 include/code/__pycache__
-penv39/
+penv/
 efs/
 _archive/
 notes.txt

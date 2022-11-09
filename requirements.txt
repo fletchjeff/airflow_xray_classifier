@@ -1,5 +1,5 @@
-astronomer-providers[amazon]==1.6.0
-apache-airflow-providers-cncf-kubernetes==4.2.0
-apache-airflow-providers-amazon
+astronomer-providers[amazon]==1.10.0
+apache-airflow-providers-cncf-kubernetes==4.4.0
+#apache-airflow-providers-amazon
 ray[serve]==1.13.0
 apache-airflow-providers-sendgrid==3.0.0
