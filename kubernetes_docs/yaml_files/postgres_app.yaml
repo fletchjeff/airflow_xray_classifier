@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-app
+spec:
+  selector:
+    matchLabels:
+      app: postgres-pods
+  replicas: 1      
+  template:
+    metadata:
+      labels:
+        app: postgres-pods
+    spec:
+      containers:
+        - name: postgres-container
+          image: postgres
+          ports:
+            - containerPort: 5543
+              protocol: TCP
+          volumeMounts:
+          - name: persistent-storage
+            mountPath: /efs
+          env:
+          - name: POSTGRES_PASSWORD
+            value: 'i3MVEdlEtgUVeyo'
+          - name: POSTGRES_USER
+            value: 'postgres'
+          - name: PGPORT
+            value: '5432'
+      volumes:
+      - name: persistent-storage
+        persistentVolumeClaim:
+          claimName: efs-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-svc
+spec:
+  allocateLoadBalancerNodePorts: true
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - port: 5432
+    protocol: TCP
+    targetPort: 5432
+  selector:
+    app: postgres-pods
+  sessionAffinity: None
+  type: LoadBalancer

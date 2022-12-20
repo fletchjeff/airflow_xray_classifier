@@ -1,4 +1,4 @@
-FROM quay.io/astronomer/astro-runtime:6.0.4
+FROM quay.io/astronomer/astro-runtime:6.0.3
 
 COPY --chown=astro:astro include/.aws /home/astro/.aws
 COPY --chown=astro:astro include/config /home/astro/config
