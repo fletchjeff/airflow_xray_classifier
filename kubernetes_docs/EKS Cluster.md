@@ -16,11 +16,27 @@ eksctl create cluster \
 --managed --without-nodegroup
 ```
 
-### Step 2: Create Node Group
+### Step 2: Create Node Groups
 
-Next create the node group. Note in the command below you need to specify the node zones. Its best to use all available node zones and GPU instance availability is complicated. e.g.
+Next create the 2 node groups. You need one node group to run the k8s services (which can also be used to run the MLFlow,Ray and Streamlit services) and one node group to run the GPU training tasks. Note in the command below you need to specify the node zones. Its best to use all available node zones and GPU instance availability is complicated. e.g.
 
 `--node-zones eu-central-1a,eu-central-1b,eu-central-1c`
+
+#### Normal (`t3.large`) Node Group
+
+```
+eksctl create nodegroup \
+  --cluster <your_cluster_name> \
+  --region <your_prefered_region> \
+  --name <your_nodegroup_name> \
+  --node-type t3.large \
+  --nodes 1 \
+  --nodes-min 1 \
+  --nodes-max 2 \
+  --node-zones <your_prefered_zones>
+```
+
+#### GPU (`g4dn.large`) Node Group
 
 ```
 eksctl create nodegroup \
@@ -161,7 +177,7 @@ spec:
 Apply this file to the cluster
 
 ```
-kubectl create -f nvidia-smi.yml
+kubectl create -f nvidia-smi.yaml
 ```
 
 This will cause a scale up of the GPU cluster. You can watch the logs for the autoscaler using:

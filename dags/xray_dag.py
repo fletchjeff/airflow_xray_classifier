@@ -56,7 +56,7 @@ def xray_classifier_dag():
     """
 
     check_for_new_s3_data = S3KeySensorAsync(
-        bucket_key="s3://jfletcher-datasets/xray_data_2_class.tgz",
+        bucket_key="s3://ce-ml-data/xray_data_2_class.tgz",
         task_id="check_for_new_s3_data",
         aws_conn_id="my_aws_conn"
     )
@@ -80,7 +80,7 @@ def xray_classifier_dag():
     )
 
     train_xray_model_on_gpu = KubernetesPodOperator(
-        image="fletchjeffastro/tfmlflow:0.0.4",
+        image="fletchjeffastro/tfmlflow:0.0.6",
         name="train_xray_model_on_gpu_pod",
         cmds=["/bin/bash", "-c", "--",
               "python {}/model_training.py {} {{{{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}}} {}".format(STORAGE_PATH, STORAGE_PATH, MLFLOW_SERVER)],

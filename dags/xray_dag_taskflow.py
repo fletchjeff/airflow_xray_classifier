@@ -56,7 +56,7 @@ def xray_classifier_dag_taskflow():
     """
 
     check_for_new_s3_data = S3KeySensorAsync(
-        bucket_key="s3://jfletcher-datasets/xray_data_2_class.tgz",
+        bucket_key="s3://ce-ml-data/xray_data_2_class.tgz",
         task_id="check_for_new_s3_data",
         aws_conn_id="my_aws_conn"
     )
@@ -71,7 +71,7 @@ def xray_classifier_dag_taskflow():
     )
 
     @task.kubernetes(
-        image="fletchjeffastro/tfmlflow:0.0.4",
+        image="fletchjeffastro/tfmlflow:0.0.6",
         name="train_xray_model_on_gpu_pod_tf",
         task_id="train_xray_model_on_gpu_tf",
         startup_timeout_seconds=600,
