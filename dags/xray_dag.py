@@ -5,6 +5,7 @@ from airflow.operators.email import EmailOperator
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
 from kubernetes.client import models as k8s
 import os
+from mlflow_provider.operators.registry import     GetLatestModelVersionsOperator
 
 STORAGE_PATH = os.environ["STORAGE_PATH"]
 PVC_NAME = os.environ["PVC_NAME"]
@@ -27,6 +28,9 @@ volume = k8s.V1Volume(
 
 container_resources = k8s.V1ResourceRequirements(
     limits={
+        'nvidia.com/gpu': '1'
+    },
+    requests={
         'nvidia.com/gpu': '1'
     }
 )
@@ -136,15 +140,26 @@ def xray_classifier_dag():
         **kpo_defaults
     )
 
+    get_latest_model_versions = GetLatestModelVersionsOperator(
+        mlflow_conn_id='my_mlflow',
+        task_id='get_latest_model_versions',
+        name='xray_classifier_model'
+    )
+
     email_on_completion = EmailOperator(
+        conn_id='smtp_default',
         task_id="email_on_completion",
-        to='fletch.jeff@gmail.com',
+        to='jeff.fletcher@astronomer.io',
         subject='Model Training Complete',
-        html_content="Xray Classifier Model training completed for model run {{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}",
+        html_content="""Xray Classifier Model training completed on {{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}
+        
+        Details: 
+        {{ti.xcom_pull(task_ids='get_latest_model_versions', key='return_value')}}
+        """
     )
 
     check_for_new_s3_data >> [fetch_data, fetch_code] >> train_xray_model_on_gpu >> [
-        ray_updated, fetch_updated_streamlit_code] >> email_on_completion
+        ray_updated, fetch_updated_streamlit_code] >> get_latest_model_versions >> email_on_completion
 
 
 xray_classifier = xray_classifier_dag()

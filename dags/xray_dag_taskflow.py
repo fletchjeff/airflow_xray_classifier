@@ -4,6 +4,7 @@ from astronomer.providers.amazon.aws.sensors.s3 import S3KeySensorAsync
 from airflow.operators.email import EmailOperator
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
 from kubernetes.client import models as k8s
+from mlflow_provider.operators.registry import     GetLatestModelVersionsOperator
 import os
 
 STORAGE_PATH = os.environ["STORAGE_PATH"]
@@ -28,7 +29,10 @@ volume = k8s.V1Volume(
 container_resources = k8s.V1ResourceRequirements(
     limits={
         'nvidia.com/gpu': '1'
-    }
+    },
+    requests={
+        'nvidia.com/gpu': '1'
+    }    
 )
 
 kpo_defaults = {
@@ -198,7 +202,7 @@ def xray_classifier_dag_taskflow():
 
         # Start mlflow
         mlflow.set_tracking_uri(f"http://{mlflow_server}:5000")
-        mlflow.keras.autolog(registered_model_name=f"xray_model_train_{run_date}")
+        mlflow.keras.autolog(registered_model_name=f"xray_classifier_model")
         if mlflow.get_experiment_by_name(f"run_{run_date}") == None:
             mlflow.create_experiment(f"run_{run_date}")
         mlflow.set_experiment(f"run_{run_date}")
@@ -216,25 +220,25 @@ def xray_classifier_dag_taskflow():
             loss = history.history['loss']
             val_loss = history.history['val_loss']
 
-        ## Fine tuning
-        # Un-freeze the top layers of the model
-        base_model.trainable = True
-        fine_tune_at = 100
-        for layer in base_model.layers[:fine_tune_at]:
-            layer.trainable =  False
+            ## Fine tuning
+            # Un-freeze the top layers of the model
+            base_model.trainable = True
+            fine_tune_at = 100
+            for layer in base_model.layers[:fine_tune_at]:
+                layer.trainable =  False
 
-        # Re-compile the model
-        model.compile(
-            loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
-            optimizer = tf.keras.optimizers.RMSprop(lr=base_learning_rate/10),
-            metrics=['accuracy']
-        )
+            # Re-compile the model
+            model.compile(
+                loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
+                optimizer = tf.keras.optimizers.RMSprop(lr=base_learning_rate/10),
+                metrics=['accuracy']
+            )
 
-        # Continue training the model
-        fine_tune_epochs = 15
-        total_epochs =  initial_epochs + fine_tune_epochs
+            # Continue training the model
+            fine_tune_epochs = 15
+            total_epochs =  initial_epochs + fine_tune_epochs
 
-        with mlflow.start_run() as run:
+            #with mlflow.start_run() as run:
             history_fine = model.fit(
                 train_dataset,
                 epochs=total_epochs,
@@ -317,16 +321,27 @@ def xray_classifier_dag_taskflow():
                     else:                            
                         streamlit_app_out.write(line)        
 
+    get_latest_model_versions = GetLatestModelVersionsOperator(
+        mlflow_conn_id='my_mlflow',
+        task_id='get_latest_model_versions',
+        name='xray_classifier_model'
+    )
+
     email_on_completion = EmailOperator(
+        conn_id='smtp_default',
         task_id="email_on_completion",
-        to='fletch.jeff@gmail.com',
+        to='jeff.fletcher@astronomer.io',
         subject='Model Training Complete',
-        html_content="Xray Classifier Model training completed for model run {{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}",
+        html_content="""Xray Classifier Model training completed on {{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}
+        
+        Details: 
+        {{ti.xcom_pull(task_ids='get_latest_model_versions', key='return_value')}}
+        """
     )
 
     check_for_new_s3_data >> fetch_data >> train_xray_model_on_gpu_tf() >> [
         update_ray("{{dag_run.logical_date.strftime('%Y%m%d-%H%M%S')}}"), 
         fetch_updated_streamlit_code()
-    ] >> email_on_completion
+    ] >> get_latest_model_versions >> email_on_completion
        
 xray_classifier_dag_taskflow()

@@ -2,3 +2,4 @@ astronomer-providers[amazon]==1.16.0
 apache-airflow-providers-cncf-kubernetes==7.0.0+astro.2
 ray[serve]==1.13.0
 apache-airflow-providers-sendgrid==3.2.0
+airflow-provider-mlflow==1.1.0
