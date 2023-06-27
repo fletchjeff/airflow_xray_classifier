@@ -68,11 +68,16 @@ Once you've updated the Dockerfile and added your credentials to the project, yo
 ![architecture](images/architecture.png)
 
 #### 2.3 Create AWS Connection
-For the `S3KeySensorAsync` to connect to AWS and check the S3 bucket, you need to add your AWS connection details to Airflow. This is different to the AWS config file from step 2.1, although it does contain the same info. In the Airflow UI, got to `Admin > Connections` and add a new connection. Fill in your AWS details as follows, make sure to use the same `my_aws_conn` connection ID.
+For the `S3KeySensorAsync` to connect to AWS and check the S3 bucket, you need to add your AWS connection details to Airflow. This is different to the AWS config file from step 2.1, although it does contain the same info. In the Airflow UI, got to `Admin > Connections` and add a new **Amazon Web Services** connection. Fill in your AWS details as follows, make sure to use the same `my_aws_conn` connection ID.
 
 ![connections](images/AWS_Secret.png)
 
-#### 2.4 Configure Email
+#### 2.4 Create MLFlow Connection
+Most of the connections to the MLFlow server are done inside the relevant tasks with standard the standard Python libraries. However the [airflow-provider-mlflow](https://github.com/astronomer/airflow-provider-mlflow/) from Astronomer allows you to run MLFlow specific operators to interact with Experiments and the Model Registry in the OG Operator way. The MLFlow Operator uses the HTTP connection type. In the Airflow UI, got to `Admin > Connections` and add a new **HTTP** connection. Fill in your MLFlow server details as follows, make sure to use the same `my_mlflow` connection ID.
+
+![mlflow](images/mlflow_conn.png)
+
+#### 2.5 Configure Email
 There are a couple of ways of getting Airflow to send an email, either as an explicit task or as an alert for failed tasks. The Astro documentation recommends a [few approaches](https://docs.astronomer.io/astro/airflow-alerts#configure-airflow-email-alerts). I used my gmail account along with a [Google App Password](https://support.google.com/accounts/answer/185833?hl=en-GB). The easiest way to configure this with the Astro cli is to add an `airflow.cfg` file to the project directory with the following details:
 
 ```Conf
@@ -90,7 +95,7 @@ smtp_retry_limit = 5
 
 This becomes the default email connection for the local Airflow instance.
 
-#### 2.5 Trigger the DAG
+#### 2.6 Trigger the DAG
 If you have completed all the previous steps, you should be good to go. Trigger the DAG in the local Airflow UI and marvel at the operations of these learning machines!
 
 ### Step 3 - Push to Production
@@ -101,8 +106,8 @@ Once you have everything working locally, the next step is to push into producti
 #### 3.1 Deploy to Astro cluster
 To deploy the code to your deployment, in the project directory run `astro deploy`. More help on this is available in the astro [documentation](https://docs.astronomer.io/astro/deploy-code).
 
-#### 3.2 Create AWS Connection
-You need to create the same AWS connection you did for the local configuration in [step 2.3](#23-create-aws-connection)
+#### 3.2 Create AWS and MLFlow Connections
+You need to create the same AWS and MLFlow connections you did for the local configuration in [step 2.3](#23-create-aws-connection) and [step 2.4](#24-create-mlflow-connection)
 
 #### 3.3 Configure Email
 For production it is not recommended to use your gmail account, so you should follow one of the Astronomer recommended email alert [implementations](https://docs.astronomer.io/astro/airflow-alerts#configure-airflow-email-alerts).
