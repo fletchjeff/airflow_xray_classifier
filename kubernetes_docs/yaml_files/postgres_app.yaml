@@ -16,7 +16,7 @@ spec:
         - name: postgres-container
           image: postgres
           ports:
-            - containerPort: 5543
+            - containerPort: 5432
               protocol: TCP
           volumeMounts:
           - name: persistent-storage
